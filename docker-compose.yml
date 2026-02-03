@@ -1,0 +1,117 @@
+version: "3.8"
+
+services:
+
+  mysql:
+    image: mysql:8
+    container_name: cineverse-mysql
+    restart: always
+    environment:
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: krishna
+      MYSQL_DATABASE: project_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: "mysqladmin ping -h localhost -proot"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  eureka:
+    build: ./backend/service-registry
+    image: cineverse-eureka
+    container_name: cineverse-eureka
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8761/eureka/apps/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+
+  api-gateway:
+    build: ./backend/api-gateway
+    image: cineverse-gateway
+    container_name: cineverse-api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      eureka:
+        condition: service_healthy
+
+  movie-service:
+    build: ./backend/movie-service
+    image: cineverse-movie
+    container_name: cineverse-movie
+    ports:
+      - "8082:8082"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+
+  booking-service:
+    build: ./backend/booking-payment-service
+    image: cineverse-booking
+    container_name: cineverse-booking
+    ports:
+      - "8083:8083"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+
+  notification-service:
+    build: ./backend/notification-service
+    image: cineverse-notification
+    container_name: cineverse-notification
+    ports:
+      - "8085:8085"
+    depends_on:
+      eureka:
+        condition: service_healthy
+
+  user-service:
+    build: ./backend/user-service
+    image: cineverse-user
+    container_name: cineverse-user
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: krishna
+      DB_MAIN_NAME: project_db
+      DB_LOGS_NAME: movie_logs_db
+    ports:
+      - "4000:4000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_REACT_APP_API_URL: http://13.235.66.189:4000
+        VITE_REACT_APP_MOVIE_API_URL: http://13.235.66.189:8080
+        VITE_NOTIFICATION_API_URL: http://13.235.66.189:8085
+    image: cineverse-frontend
+    container_name: cineverse-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      api-gateway:
+        condition: service_started
+
+volumes:
+  mysql_data:
+
