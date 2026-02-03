@@ -7,9 +7,7 @@ services:
     container_name: cineverse-mysql
     restart: always
     environment:
-      MYSQL_USER: root
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_PASSWORD: krishna
+      MYSQL_ROOT_PASSWORD: krishna
       MYSQL_DATABASE: project_db
     ports:
       - "3306:3306"
@@ -89,6 +87,10 @@ services:
       DB_PASS: krishna
       DB_MAIN_NAME: project_db
       DB_LOGS_NAME: movie_logs_db
+      JWT_SECRET: booking-movie-shared-secret-9f3d7c2a1b8e4f6d9c0a5e7b2d4f8a1c
+      BCRYPT_SALT_ROUNDS: 10
+      EMAIL_USER: cineversehub1@gmail.com
+      EMAIL_PASS: "hkbm ejqf lyck cyyc"
     ports:
       - "4000:4000"
     depends_on:
