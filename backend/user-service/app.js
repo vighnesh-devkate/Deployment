@@ -7,8 +7,16 @@ const adminRoutes = require("./routes/admin.route");
 
 const app = express();
 
-//  ENABLE CORS FIRST
-app.use(cors());
+
+
+app.use(cors({
+  origin: "http://13.235.66.189:5173",
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"]
+}));
+
+app.options("*", cors());   
+
 
 app.use(express.json());
 //  Auth routes

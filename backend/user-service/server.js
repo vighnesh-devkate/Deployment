@@ -6,7 +6,7 @@ const eurekaClient = require("./config/eureka-client");
 
 const PORT =  4000;
 
-app.listen(PORT, () => {
+app.listen(PORT || 4000 ,"0.0.0.0", () => {
   console.log(`User Service running on port ${PORT}`);
 
    //Register service with Eureka
