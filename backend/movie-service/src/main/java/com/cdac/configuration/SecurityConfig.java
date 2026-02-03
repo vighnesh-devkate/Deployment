@@ -29,9 +29,7 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/owner/movies", "/api/admin/movies/pending").permitAll()
                         .requestMatchers("/api/owner/**").hasRole("THEATER_OWNER")
